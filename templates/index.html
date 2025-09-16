@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligent Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: radial-gradient(circle at 50% 50%, #ffe9fa 0%, #e8eaff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            box-shadow: 0px 4px 24px #e6e6fa44;
+            padding: 40px 20px 30px 20px;
+            min-width: 350px;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 34px;
+            color: #b296fc;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-weight: 500;
+            color: #3c3b6e;
+            margin-bottom: 8px;
+            font-size: 1.45em;
+        }
+
+        .suggestions {
+            margin-top: 18px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .suggestion-btn {
+            background: #f4edff;
+            border: none;
+            border-radius: 8px;
+            color: #7c5ccc;
+            padding: 8px 18px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            font-size: 0.98em;
+            transition: box-shadow 0.14s;
+        }
+        .suggestion-btn:hover {
+            box-shadow: 0px 2px 8px #a694e833;
+        }
+
+        .chatbox {
+            margin: 32px 0 0 0;
+            min-height: 130px;
+            max-height: 260px;
+            overflow-y: auto;
+            background: #fafaff;
+            border-radius: 12px;
+            padding: 20px 16px;
+            font-size: 1em;
+            color: #353475;
+        }
+        .user-msg {
+            text-align: right;
+            color: #7c5ccc;
+            margin-bottom: 8px;
+        }
+        .bot-msg {
+            text-align: left;
+            color: #353475;
+            margin-bottom: 12px;
+        }
+
+        .input-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+            gap: 0;
+        }
+        .input-area input[type="text"] {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #e6e6fa;
+            border-radius: 20px 0 0 20px;
+            outline: none;
+            font-size: 1em;
+        }
+        .input-area button {
+            background: #dad3fe;
+            color: #5f53e5;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 0 20px 20px 0;
+            cursor: pointer;
+            font-size: 1.18em;
+            transition: background 0.15s;
+        }
+        .input-area button:hover {
+            background: #b9a8fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">✦✦</div>
+        <h1>Ask our AI anything</h1>
+        <div class="suggestions">
+            <button class="suggestion-btn">What can I ask you to do?</button>
+            <button class="suggestion-btn">can you tell me the branches available in UNI?</button>
+            <button class="suggestion-btn">Where is library?</button>
+
+            
+            
+        </div>
+        <div class="chatbox" id="chatbox">
+            <!-- Chat messages will appear here -->
+        </div>
+        <form class="input-area" id="messageForm" autocomplete="off">
+            <input type="text" id="userInput" name="message" placeholder="Ask me." required />
+            <button type="submit">&#10148;</button>
+        </form>
+    </div>
+    <script>
+        // Add suggestion click
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('userInput').value = btn.innerText;
+                document.getElementById('userInput').focus();
+            });
+        });
+
+        const chatbox = document.getElementById('chatbox');
+        const messageForm = document.getElementById('messageForm');
+        const userInput = document.getElementById('userInput');
+        messageForm.onsubmit = function(e) {
+            e.preventDefault();
+            let msg = userInput.value.trim();
+            if (msg === "") { return; }
+
+            // User message
+            chatbox.innerHTML += `<div class="user-msg"><b>You:</b> ${msg}</div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            fetch('/get', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: msg})
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                chatbox.innerHTML += `<div class="bot-msg"><b>AI:</b> ${data.response}</div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+            userInput.value = "";
+        };
+    </script>
+</body>
+</html>
